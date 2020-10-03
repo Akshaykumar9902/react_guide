@@ -1,48 +1,118 @@
-import React, { useState } from 'react';
+import React, { Component } from 'react';
+import './App.css';
+// import Radium,{StyleRoot} from 'radium';
 import Person from './Person/Person';
 
-import './App.css';
 
-const app=props=> {
-   const [personState , setPersonState]= useState({
-      Person : [
-        {name:"Akshay",age:26},
-        {name:"Max",age:28},
-        {name:"Manu",age:28}
-      ],
-    otherState: 'some other value'
+
+
+class App extends Component {
+  state = {
+    persons: [
+      { id : '1',name: 'Max', age: 28 },
+      { id : '2',name: 'Manu', age: 29 },
+      { id : '3',name: 'Stephanie', age: 26 }
+    ],
+    otherState: 'some other value',
+    showPersons: false
+  }
+
+  switchNameHandler = (newName) => {
+    this.setState( {
+      persons: [
+        { name: newName, age: 28 },
+        { name: 'Manu', age: 29 },
+        { name: 'Stephanie', age: 27 }
+      ]
+    } )
+  }
+
+  togglePersonHandler=()=>{
+    const doesShow = this.state.showPersons;
+    this.setState({
+      showPersons : !doesShow
     });
-    const [otherState,setOtherState]=useState('Some other value....s');
-    console.log(personState,otherState);
-    const switchNameHandler=()=>{
-      console.log('Was clicked');
-      setPersonState({   
-        Person : [
-        {name:"AkshayKumar",age:26},
-        {name:"Max",age:28},
-        {name:"Manu",age:28}
-      ],
-      otherState:personState.otherState
-     
-      })
-     
-     }
+  }
+
+ 
+
+  nameChangedHandler = (event,id) => {
+    const personIndex = this.state.persons.findIndex(p=>{
+      return p.id===id;
+    })
+    console.log(personIndex);
+    console.log(id);
+    const person={
+      ...this.state.persons[personIndex]
+    };
+    person.name=event.target.value;
+    const persons=[...this.state.persons];
+    persons[personIndex]=person;
+
+    this.setState( {
+      persons: persons
+    } )
+  }
   
-    return (
-      <div className="App">
-       <h1>Hi I'm react app</h1>
-       <p>This is really working!</p>
-       
-       <button type="button" onClick={switchNameHandler} >Switch Name</button>
-       
-       <Person name={personState.Person[0].name} age={personState.Person[0].age}/>
-       <Person name={personState.Person[1].name} age={personState.Person[1].age}>My Hobbies: Racing</Person>
-       <Person name={personState.Person[2].name} age={personState.Person[2].age}>{personState.otherState}</Person>
-      </div>
-    );
+  deletePersonHandler = (personIndex)=>{
+     //const persons=this.state.persons;
+     const persons=this.state.persons.slice();
+    // const persons=[...this.state.persons];
+     persons.splice(personIndex,1);
+     this.setState({persons:persons});
+  }
+
+  render () {
+    const style = {
+      backgroundColor: 'green',
+      color:'white',
+      font:'inherit',
+      border: '1px solid blue',
+      padding:'8px',
+      cursor:'pointer',
+      ':hover':{
+        backgroundColor: 'lightgreen',
+        color: 'black'
+      }
+    }
+    let persons=null;
+    if(this.state.showPersons){
+     persons= (<div>
+       {this.state.persons.map((person,index) => {
+         return <Person click={this.deletePersonHandler.bind(this,index)} name={person.name} 
+         age={person.age} key={person.id} 
+         changed={(event)=>this.nameChangedHandler(event,person.id)} />
+       })}
+      </div>);
+      // style.backgroundColor = 'red';
+      // style[':hover']={
+      //   backgroundColor: 'salmon',
+      //   color: 'black'
+      // }
+
+    }
     
-  
+    const classes=[];
+    if(this.state.persons.length <=2){
+       classes.push('red');// classes=['red'];
+    }
+    if(this.state.persons.length <=1){
+      classes.push('bold');// classes=['red','bold'];
+   }
+
+
+    return (
+     
+      <div className="App">
+        <h1>Hi, I'm a React App</h1>
+        <p className={classes.join(' ')}> This is really working!</p>
+        <button className="button" onClick={ this.togglePersonHandler}>Switch Name</button>
+     {persons}          
+      </div>
+     
+    );
+    // return React.createElement('div', {className: 'App'}, React.createElement('h1', null, 'Does this work now?'));
+  }
 }
 
-export default app;
-
+export default App;
